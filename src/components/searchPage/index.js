@@ -44,7 +44,7 @@ class SearchPage extends Component {
       headerTintColor: Colors.MAIN_COLOR
     };
 
-    searchUnsplashUsers = async () => {
+    searchUnsplashUsers = () => {
       this.props.searchUsers(this.state.userName);
     }
 
