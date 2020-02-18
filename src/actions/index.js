@@ -5,7 +5,8 @@ export const SEARCH_USERS = 'SEARCH_USERS';
 
 const unsplash = new Unsplash({
     accessKey: config.accessKey,
-    secretKey: config.secretKey,
+    secret: config.secretKey,
+    timeout: 500 
 });
 
 export function searchUsers(userName) {
@@ -24,7 +25,4 @@ export function searchUsers(userName) {
             console.log('error: ', error)
         });
     }
-
-    
-
 }
