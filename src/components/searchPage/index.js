@@ -21,7 +21,6 @@ function CardItem({ fields, navigate }) {
     navigate('User', {userFields: fields})
   };
 
-  console.log('fields: ', fields)
   return (
     <TouchableOpacity onPress={onClickInfo}>
       <View style={styles.cardItem}>
@@ -37,6 +36,7 @@ class SearchPage extends Component {
       super(props);
       this.state = {
         userName: '',
+        isSearched: false
       }
     }
 
@@ -45,18 +45,22 @@ class SearchPage extends Component {
     };
 
     searchUnsplashUsers = () => {
+      this.setState({ isSearched: true })
       this.props.searchUsers(this.state.userName);
     }
 
     render() {
       const { navigate } = this.props.navigation;
+      const { isLoading, isError, userList } = this.props;
+      const { userName, isSearched } = this.state;
         return (
             <SafeAreaView style={styles.MainContainer}>
+                <Loader loading={isLoading} />
                 <View style={styles.InputContainer}>
                 <TextInput
                   underlineColorAndroid="transparent"
                   style={styles.InputUserName}
-                  value={this.state.userName}
+                  value={userName}
                   onChangeText={ (textValue) => this.setState({
                     userName: textValue}) }
                 />
@@ -67,18 +71,22 @@ class SearchPage extends Component {
                 </View>
               </View>
               <TouchableHighlight
-              style={[styles.buttonContainer, this.state.userName !== ''?styles.activeButton:styles.deactiveButton]}
+              style={[styles.buttonContainer, userName !== ''?styles.activeButton:styles.deactiveButton]}
               onPress={this.searchUnsplashUsers}
               underlayColor={Colors.HIGHLIGHT_COLOR}
-              disabled={this.state.userName === ''}>
+              disabled={userName === ''}>
               <Text style={styles.buttonText}>SEARCH</Text>
             </TouchableHighlight>
-            {this.props.userList.length > 0 &&
+            {!isError && userList.length > 0 &&
             <FlatList style={styles.cardList}
-              data={this.props.userList}
+              data={userList}
               renderItem={({ item }) => <CardItem fields={item} navigate={navigate}/>}
               keyExtractor={item => item.id}
             />}
+            {!isError && userList.length == 0 && isSearched && 
+            <Text style={styles.alertText}>Not Found</Text>}
+            {isError && 
+            <Text style={styles.alertText}>{userList}</Text>}
           </SafeAreaView>
         );
       }
@@ -146,13 +154,17 @@ class SearchPage extends Component {
         },
     })
 
-
-  function mapStateToProps(state){
-      return { userList: state.searchUsers };
+  function mapStateToProps(state) {
+    console.log('loading: ', state.searchUsers.isLoading)
+    return { 
+      isLoading: state.searchUsers.isLoading,
+      isError: state.searchUsers.isError,
+      userList: state.searchUsers.data
+    };
   }
   
   function mapDispatchToProps(dispatch) {
-      return bindActionCreators({searchUsers}, dispatch)
+    return bindActionCreators({searchUsers}, dispatch)
   }
 
   export default connect(mapStateToProps, mapDispatchToProps)(SearchPage);
